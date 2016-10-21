@@ -1,3 +1,6 @@
 [submodule "libs/Simple-Web-Server"]
 	path = libs/Simple-Web-Server
 	url = https://github.com/eidheim/Simple-Web-Server.git
+[submodule "libs/boost.http"]
+	path = libs/boost.http
+	url = https://github.com/BoostGSoC14/boost.http.git
