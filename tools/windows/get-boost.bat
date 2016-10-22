@@ -1,7 +1,16 @@
 @echo off
 
-set BUILD_DIR=%~dp0..\..\build
-mkdir %BUILD_DIR% 2> nul
+REM the calling script (run-cmake.bat) is responsible of setting BUILD_DIR
+if "%BUILD_DIR%"=="" (
+	echo Error: BUILD_DIR variable is not set!
+	exit /b 1
+)
+if exist %BUILD_DIR%\conanbuildinfo-debug.cmake (
+    if exist %BUILD_DIR%\conanbuildinfo-release.cmake (
+		echo Boost library ok (skipping Conan step^)
+		exit /b 0
+	)
+)
 
 where conan 2> nul || goto:setup_path
 goto:get_boost
