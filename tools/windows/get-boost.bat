@@ -18,11 +18,9 @@ pushd %BUILD_DIR%
 
 conan install %COMMON_OPTIONS% -s compiler.runtime=MDd -s build_type=Debug || goto:failed
 ren conanbuildinfo.cmake conanbuildinfo-debug.cmake > nul || goto:failed
-del conaninfo.txt > nul
 
 conan install %COMMON_OPTIONS% -s compiler.runtime=MD -s build_type=Release || goto:failed
 ren conanbuildinfo.cmake conanbuildinfo-release.cmake > nul || goto:failed
-del conaninfo.txt > nul
 
 popd
 
