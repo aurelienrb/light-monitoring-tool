@@ -4,6 +4,6 @@
 [submodule "libs/boost.http"]
 	path = libs/boost.http
 	url = https://github.com/BoostGSoC14/boost.http.git
-[submodule "tools/bin2c/src"]
-	path = tools/bin2c/src
-	url = https://github.com/gwilymk/bin2c.git
+[submodule "tools/bin2cpp"]
+	path = tools/bin2cpp
+	url = https://github.com/aurelienrb/bin2cpp.git
