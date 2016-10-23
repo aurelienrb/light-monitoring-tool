@@ -2,6 +2,8 @@
 #include <staticfiles.h>
 #include <iostream>
 
+#include "cpu-stats.h"
+
 typedef SimpleWeb::Server<SimpleWeb::HTTP> HttpServer;
 
 std::string findStaticFile(const std::string & fileName) {
@@ -96,7 +98,9 @@ int main() {
 	//}
 
 	server.resource["^/api/cpu$"]["GET"] = [](std::shared_ptr<HttpServer::Response> response, std::shared_ptr<HttpServer::Request> request) {
-		const std::string result = "[1, 1, 2, 3, 5, 8]";
+		std::cout << "Serving /api/cpu\n";
+
+		const std::string result = to_json(getCPUStats());
 		*response << "HTTP/1.1 200 OK\r\n"
 			<< "Content-Length: " << result.length() << "\r\n"
 			<< "Content-Type: " << "application/json" << "\r\n"

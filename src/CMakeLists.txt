@@ -28,6 +28,8 @@ set(GENERATED_CPP_FILES
 
 set(SOURCES
 	main.cpp
+	cpu-stats.h
+	cpu-stats.cpp
 )
 
 add_executable(light-monitor ${SOURCES} ${GENERATED_CPP_FILES})
