@@ -14,20 +14,48 @@ std::string findStaticFile(const std::string & fileName) {
 	return "Error 404!";
 }
 
+bool endsWith(const std::string & str, const std::string & text) {
+	if (text.length() <= str.length()) {
+		return (str.compare(str.length() - text.length(), text.length(), text) == 0);
+	}
+	return false;
+}
+
+std::string generateContentTypeFromFileExtension(const std::string & fileName) {
+	if (endsWith(fileName, ".js")) {
+		return "Content-Type: application/javascript\r\n";
+	}
+	else if (endsWith(fileName, ".css")) {
+		return "Content-Type: text/css\r\n";
+	}
+	else if (endsWith(fileName, ".png")) {
+		return "Content-Type: image/png\r\n";
+	}
+	else {
+		return std::string{};
+	}
+}
+
 int main() {
 	HttpServer server(8080, 1);
 	server.config.address = "127.0.0.1";
 
 	server.resource["^/$"]["GET"] = [](std::shared_ptr<HttpServer::Response> response, std::shared_ptr<HttpServer::Request> request) {
 		const std::string result = findStaticFile("index.html");
-		*response << "HTTP/1.1 200 OK\r\nContent-Length: " << result.length() << "\r\n\r\n" << result;
+		*response << "HTTP/1.1 200 OK\r\n"
+			<< "Content-Length: " << result.length() << "\r\n"
+			<< "Content-Type:" << "text/html" << "\r\n"
+			<< "\r\n" << result;
 	};
 
 	server.resource["^/(css|js|images)/(.)+$"]["GET"] = [](std::shared_ptr<HttpServer::Response> response, std::shared_ptr<HttpServer::Request> request) {
 		try {
 			const std::string relPath(request->path, 1); // remove the front '/'
 			const std::string result = findStaticFile(relPath);
-			*response << "HTTP/1.1 200 OK\r\nContent-Length: " << result.length() << "\r\n\r\n" << result;
+			*response << "HTTP/1.1 200 OK\r\n"
+				<< "Content-Length: " << result.length() << "\r\n"
+				<< generateContentTypeFromFileExtension(relPath)
+				<< "\r\n" << result;
 		}
 		catch (const std::exception & e) {
 			std::cerr << "Error: " << e.what() << "\n";
@@ -36,6 +64,14 @@ int main() {
 
 	//server.resource["^/favicon.ico$"]["GET"] = [](std::shared_ptr<HttpServer::Response> response, std::shared_ptr<HttpServer::Request> request) {
 	//}
+
+	server.resource["^/api/cpu$"]["GET"] = [](std::shared_ptr<HttpServer::Response> response, std::shared_ptr<HttpServer::Request> request) {
+		const std::string result = "[1, 1, 2, 3, 5, 8]";
+		*response << "HTTP/1.1 200 OK\r\n"
+			<< "Content-Length: " << result.length() << "\r\n"
+			<< "Content-Type:" << "application/json" << "\r\n"
+			<< "\r\n" << result;
+	};
 
 	server.start();
 }
