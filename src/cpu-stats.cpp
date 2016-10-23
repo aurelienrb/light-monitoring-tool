@@ -5,18 +5,60 @@
 #include <algorithm>
 #include <iomanip>
 
+#define _UNICODE
+#include <pdh.h>
+#pragma comment(lib, "Pdh.lib")
+
+namespace {
+	// http://stackoverflow.com/questions/63166/how-to-determine-cpu-and-memory-consumption-from-inside-a-process
+
+	static PDH_HQUERY cpuQuery;
+	static PDH_HCOUNTER cpuTotal;
+
+	void initPdh() {
+		if (PdhOpenQuery(NULL, NULL, &cpuQuery) != ERROR_SUCCESS ||
+			PdhAddEnglishCounter(cpuQuery, L"\\Processor(_Total)\\% Processor Time", NULL, &cpuTotal) != ERROR_SUCCESS)
+		{
+			_CrtDbgBreak();
+		}
+		else {
+			// Start outside the loop as CPU requires difference 
+			PdhCollectQueryData(cpuQuery);
+		}
+	}
+
+	double getCurrentCPUValue() {
+		PDH_FMT_COUNTERVALUE counterVal;
+
+		if (PdhCollectQueryData(cpuQuery) != ERROR_SUCCESS ||
+			PdhGetFormattedCounterValue(cpuTotal, PDH_FMT_DOUBLE, NULL, &counterVal) != ERROR_SUCCESS)
+		{
+			_CrtDbgBreak();
+			return 0.0;
+		}
+		else {
+			return counterVal.doubleValue;
+		}
+	}
+}
+
 std::vector<int> getCPUStats() {
-	static std::vector<int> stats;
-	const size_t nbValues = 300;
-	if (!stats.empty()) {
-		stats.assign(stats.begin() + 1, stats.end());
-		stats.resize(stats.size() - 1);
+	static bool s_initDone = false;
+	if (!s_initDone) {
+		initPdh();
+		s_initDone = true;
 	}
-	while (stats.size() < nbValues) {
-		const int n = (std::rand() % 100);
-		stats.push_back(n);
+
+	static std::vector<int> s_previousValues;
+	const size_t maxNbValues = 300;
+	if (s_previousValues.size() == maxNbValues) {
+		s_previousValues.assign(s_previousValues.begin() + 1, s_previousValues.end());
+		s_previousValues.resize(s_previousValues.size() - 1);
 	}
-	return stats;
+
+	const auto val = static_cast<int>(getCurrentCPUValue());
+	s_previousValues.push_back(val);
+	return s_previousValues;
 }
 
 std::string to_json(const std::vector<int> & data) {
