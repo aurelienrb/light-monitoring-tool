@@ -19,6 +19,7 @@ endif()
 conan_basic_setup()
 
 include_directories(${CMAKE_SOURCE_DIR}/../libs/Simple-Web-Server)
+include_directories(${CMAKE_SOURCE_DIR}/html-files/cpp-generated)
 
 set(GENERATED_CPP_FILES
 	html-files/cpp-generated/staticfiles.h
