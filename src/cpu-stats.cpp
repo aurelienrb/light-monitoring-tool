@@ -1,5 +1,6 @@
 #include "cpu-stats.h"
 
+#include <cassert>
 #include <sstream>
 #include <cstdlib>
 #include <algorithm>
@@ -51,13 +52,16 @@ std::vector<int> getCPUStats() {
 
 	static std::vector<int> s_previousValues;
 	const size_t maxNbValues = 300;
-	if (s_previousValues.size() == maxNbValues) {
+	if (s_previousValues.empty()) {
+		s_previousValues.resize(maxNbValues - 1);
+	}
+	else if (s_previousValues.size() == maxNbValues) {
 		s_previousValues.assign(s_previousValues.begin() + 1, s_previousValues.end());
-		s_previousValues.resize(s_previousValues.size() - 1);
 	}
 
 	const auto val = static_cast<int>(getCurrentCPUValue());
 	s_previousValues.push_back(val);
+	assert(s_previousValues.size() == maxNbValues);
 	return s_previousValues;
 }
 
