@@ -11,7 +11,7 @@ std::string findStaticFile(const std::string & fileName) {
 			return file.content();
 		}
 	}
-	return "Error 404!";
+	return std::string{}; // Error 404!
 }
 
 bool endsWith(const std::string & str, const std::string & text) {
@@ -36,6 +36,17 @@ std::string generateContentTypeFromFileExtension(const std::string & fileName) {
 	}
 }
 
+std::string error404() {
+	static const std::string msg404 = "<html><head></head><body><h1>Page not found!</h1></body></html>";
+	static const std::string httpHeader =
+		std::string{ "HTTP/1.1 200 OK\r\n" } +
+		"Content-Length: " + std::to_string(msg404.length()) + "\r\n" +
+		"Content-Type: text/html\r\n" +
+		"\r\n" +
+		msg404;
+	return httpHeader;
+}
+
 int main() {
 	HttpServer server(8080, 1);
 	server.config.address = "127.0.0.1";
@@ -44,18 +55,37 @@ int main() {
 		const std::string result = findStaticFile("index.html");
 		*response << "HTTP/1.1 200 OK\r\n"
 			<< "Content-Length: " << result.length() << "\r\n"
-			<< "Content-Type:" << "text/html" << "\r\n"
+			<< "Content-Type: " << "text/html" << "\r\n"
 			<< "\r\n" << result;
+	};
+
+	server.resource["^/(.)+.html$"]["GET"] = [](std::shared_ptr<HttpServer::Response> response, std::shared_ptr<HttpServer::Request> request) {
+		const std::string relPath(request->path, 1); // remove the front '/'
+		const std::string result = findStaticFile(relPath);
+		if (!result.empty()) {
+			*response << "HTTP/1.1 200 OK\r\n"
+				<< "Content-Length: " << result.length() << "\r\n"
+				<< "Content-Type: " << "text/html" << "\r\n"
+				<< "\r\n" << result;
+		}
+		else {
+			*response << error404();
+		}
 	};
 
 	server.resource["^/(css|js|images)/(.)+$"]["GET"] = [](std::shared_ptr<HttpServer::Response> response, std::shared_ptr<HttpServer::Request> request) {
 		try {
 			const std::string relPath(request->path, 1); // remove the front '/'
 			const std::string result = findStaticFile(relPath);
-			*response << "HTTP/1.1 200 OK\r\n"
-				<< "Content-Length: " << result.length() << "\r\n"
-				<< generateContentTypeFromFileExtension(relPath)
-				<< "\r\n" << result;
+			if (!result.empty()) {
+				*response << "HTTP/1.1 200 OK\r\n"
+					<< "Content-Length: " << result.length() << "\r\n"
+					<< generateContentTypeFromFileExtension(relPath)
+					<< "\r\n" << result;
+			}
+			else {
+				*response << error404();
+			}
 		}
 		catch (const std::exception & e) {
 			std::cerr << "Error: " << e.what() << "\n";
@@ -69,7 +99,7 @@ int main() {
 		const std::string result = "[1, 1, 2, 3, 5, 8]";
 		*response << "HTTP/1.1 200 OK\r\n"
 			<< "Content-Length: " << result.length() << "\r\n"
-			<< "Content-Type:" << "application/json" << "\r\n"
+			<< "Content-Type: " << "application/json" << "\r\n"
 			<< "\r\n" << result;
 	};
 

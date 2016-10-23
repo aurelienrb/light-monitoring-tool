@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Light Monitor</title>
+	<link rel="shortcut icon" href="" />
+	<link href="css/style.css" rel="stylesheet" type="text/css">
+	<script language="javascript" type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript">
+	$(function() {});
+	function test_ajax() {
+		$.get("/api/cpu", function(data){
+			$('#response').html(data);
+		});
+	}
+	</script>
+</head>
+<body>
+	<div id="header">
+		<h2>Test AJAX response</h2>
+	</div>
+
+	<div id="content">
+		<p><button onclick="test_ajax()">Test AJAX</button></p>
+		<p>Réponse: <span id="response"></span></p>
+	</div>
+	<div id="footer">
+		Copyright &copy; 2016
+	</div>
+</body>
+</html>
