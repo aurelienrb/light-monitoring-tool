@@ -12,7 +12,7 @@ mkdir %OUTDIR% 2> nul
 
 echo Generating cpp files in %OUTDIR%
 pushd %~dp0
-%BIN2CPP% -ns static_files -d %OUTDIR% -o staticfiles css js images || exit /b 1
+%BIN2CPP% -ns static_files -d %OUTDIR% -o staticfiles css js images index.html || exit /b 1
 popd
 
 echo Success!
