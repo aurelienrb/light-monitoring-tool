@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <algorithm>
 #include <iomanip>
+#include <mutex>
 
 #define _UNICODE
 #include <pdh.h>
@@ -43,26 +44,35 @@ namespace {
 	}
 }
 
-std::vector<int> getCPUStats() {
+static std::mutex s_statsMutex;
+static std::vector<int> s_cpuStats;
+
+
+void updateCPUStats() {
+	std::lock_guard<std::mutex> lock(s_statsMutex);
+
 	static bool s_initDone = false;
 	if (!s_initDone) {
 		initPdh();
 		s_initDone = true;
 	}
 
-	static std::vector<int> s_previousValues;
 	const size_t maxNbValues = 300;
-	if (s_previousValues.empty()) {
-		s_previousValues.resize(maxNbValues - 1);
+	if (s_cpuStats.empty()) {
+		s_cpuStats.resize(maxNbValues - 1);
 	}
-	else if (s_previousValues.size() == maxNbValues) {
-		s_previousValues.assign(s_previousValues.begin() + 1, s_previousValues.end());
+	else if (s_cpuStats.size() == maxNbValues) {
+		s_cpuStats.assign(s_cpuStats.begin() + 1, s_cpuStats.end());
 	}
 
 	const auto val = static_cast<int>(getCurrentCPUValue());
-	s_previousValues.push_back(val);
-	assert(s_previousValues.size() == maxNbValues);
-	return s_previousValues;
+	s_cpuStats.push_back(val);
+	assert(s_cpuStats.size() == maxNbValues);
+}
+
+std::string getCPUJSONStats() {
+	std::lock_guard<std::mutex> lock(s_statsMutex);
+	return to_json(s_cpuStats);
 }
 
 std::string to_json(const std::vector<int> & data) {

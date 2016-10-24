@@ -2,5 +2,5 @@
 #include "cpu-stats.h"
 
 void CPUMonitor::update() {
-	getCPUStats();
+	updateCPUStats();
 }

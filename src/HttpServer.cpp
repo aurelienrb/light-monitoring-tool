@@ -111,7 +111,7 @@ HttpServer::HttpServer() : m_pimpl(new Pimpl) {
 	m_pimpl->server.resource["^/api/cpu$"]["GET"] = [](std::shared_ptr<HttpResponse> response, std::shared_ptr<HttpRequest> request) {
 		std::cout << "Serving /api/cpu\n";
 
-		const std::string result = to_json(getCPUStats());
+		const std::string result = getCPUJSONStats();
 		*response << "HTTP/1.1 200 OK\r\n"
 			<< "Content-Length: " << result.length() << "\r\n"
 			<< "Content-Type: " << "application/json" << "\r\n"

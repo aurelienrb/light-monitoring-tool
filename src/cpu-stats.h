@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 
-std::vector<int> getCPUStats();
+void updateCPUStats();
+
+std::string getCPUJSONStats();
 
 std::string to_json(const std::vector<int> & data);
