@@ -59,15 +59,25 @@
 </head>
 <body>
 	<div id="header">
-		<h2>CPU activity</h2>
+		<h2>MiniM (hostname)</h2>
+		<p>TODO: /api/about</p>
+		<pre>{ "hostname": "PC", "ipv4": "192.168.1.1", "system-cpu": "i5-4210U 1.7 GHz",
+"system-cores" : "4", "system-ram": "16 Gb", "os-name": "Windows 10" }</pre>
+		<p>TODO: /api/summary</p>
+		<pre>{ "uptime": "1 day 6 hours", "free-disk-space": {"C:" : "15 Gb", "D:" : "20 Gb"}} </pre>
+		<p>TODO: /api/minim</p>
+		<pre>{ "resource-usage": { "cpu": "2%", "ram": "6 Mo" }, "version": "0.1",
+"uptime": "2 days", "running-as": "Aurelien" }</pre>
 	</div>
 
 	<div id="content">
-		<h3>Last 300 seconds</h3>
+		<h3>CPU activity (last 300 seconds)</h3>
 		<div class="demo-container">
 			<div id="placeholder" class="demo-placeholder"></div>
+			<p id="status-info" />
 		</div>
-		<p id="status-info" />
+		
+		<h3>Most active processes</h3>
 	</div>
 	<!--div id="footer">
 		Copyright &copy; 2016
